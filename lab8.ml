@@ -122,7 +122,9 @@ decide how to implement this.
 ......................................................................*)
                                                    
   let add_listener (evt : 'a event) (listener : 'a -> unit) : id =
-    failwith "WEvent.add_listener not implemented"
+    let id = new_id () in
+    evt := ({id = id; action = listener}) :: !evt;
+    id
 
 (*......................................................................
 Exercise 2: Write remove_listener, which, given an id and an event,
@@ -131,15 +133,14 @@ one. If there is no listener with that id, do nothing.
 ......................................................................*)
             
   let remove_listener (evt : 'a event) (i : id) : unit =
-    failwith "WEvent.remove_listener not implemented"
-
+    evt := List.filter (fun e -> e.id != i) !evt 
 (*......................................................................
 Exercise 3: Write fire_event, which will execute all event handlers
 listening for the event.
 ......................................................................*)
             
   let fire_event (evt : 'a event) (arg : 'a) : unit =
-    failwith "WEvent.fire_event not implemented"
+    List.iter (fun e -> e.action arg) !evt
 
 end
   
@@ -156,7 +157,7 @@ Exercise 4: Given your implementation of Event, create a new event
 called "newswire" that should pass strings to the event handlers.
 ......................................................................*)
   
-let newswire = fun _ -> failwith "newswire not implemented" ;;
+let newswire = WEvent.new_event ();;
 
 (* News organizations might want to register event listeners to the
 newswire so that they might report on stories. Below are functions
@@ -207,7 +208,7 @@ Exercise 8: Create a new event called publish to signal that all
 stories should be published. The event should be a unit WEvent.event.
 ......................................................................*)
 
-let publish = fun _ -> failwith "publish not implemented" ;; 
+let publish = fun evt -> fire_event evt ;; 
 
 (*......................................................................
 Exercise 9: Write a function receive_report to handle new news
